@@ -24,6 +24,9 @@ const pairs: [string, string][] = [
   ["success", "card"], ["destructive", "card"], ["destructive", "tone-danger"],
   ["rail-foreground", "rail"], ["rail-active-foreground", "rail-active"],
   ["sidebar-foreground", "sidebar"], ["sidebar-accent-foreground", "sidebar-accent"],
+  // The shell: hovered menu row, menu captions, a count chip on an active or hovered row, home page tiles.
+  ["sidebar-foreground", "muted"], ["muted-foreground", "sidebar"], ["sidebar-accent-foreground", "card"],
+  ["foreground", "tile"], ["foreground", "muted"],
   ...tones.map((t): [string, string] => [`tone-${t}-foreground`, `tone-${t}`]),
   ...bands.map((b): [string, string] => [`band-${b}-foreground`, `band-${b}`]),
   ...bands.map((b): [string, string] => ["foreground", `band-${b}-soft`]),

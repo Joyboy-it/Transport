@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
+import { APP_NAME } from "@/modules/registry";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ระบบจ้างรถขนส่ง",
-  description: "บริหารงานจ้างรถขนส่งภายนอกและน้ำหนักต้นทางปลายทาง",
+  title: APP_NAME,
+  description: "ระบบงานภายในบริษัท",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
