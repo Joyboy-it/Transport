@@ -47,7 +47,7 @@ export function JobFilterDialog({
         <DialogHeader className="pr-8">
           <DialogTitle className="text-lg">ตัวกรอง</DialogTitle>
         </DialogHeader>
-        <form action="/jobs" className="grid gap-5">
+        <form action="/transport/jobs" className="grid gap-5">
           {view === "lines" && <input type="hidden" name="view" value="lines" />}
           <div className="flex gap-6 border-b">
             <TabButton active={tab === "time"} onClick={() => setTab("time")}>

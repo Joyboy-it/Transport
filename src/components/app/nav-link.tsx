@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 function isActive(pathname: string, href: string) {
-  if (href === "/jobs") return pathname === "/jobs" || /^\/jobs\/(?!new$)[^/]+/.test(pathname);
-  if (href === "/settings") return pathname === "/settings";
+  if (href === "/transport/jobs") return pathname === "/transport/jobs" || /^\/transport\/jobs\/(?!new$)[^/]+/.test(pathname);
+  if (href === "/transport/settings") return pathname === "/transport/settings";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

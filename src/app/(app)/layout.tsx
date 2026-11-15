@@ -33,11 +33,11 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       </div>
 
       <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2">
-        <NavLink href="/jobs">
+        <NavLink href="/transport/jobs">
           <ClipboardList className="size-4" /> ใบงาน
         </NavLink>
         {can(user.role, "job.create") && (
-          <NavLink href="/jobs?new=1">
+          <NavLink href="/transport/jobs?new=1">
             <FilePlus2 className="size-4" /> สร้างใบงาน
           </NavLink>
         )}
@@ -45,15 +45,15 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             <div className="mt-4 px-3 pb-1 text-xs font-medium text-sidebar-foreground/70">
               คิวงาน
             </div>
-        <NavLink href="/queues/origin">
+        <NavLink href="/transport/queues/origin">
           <Scale className="size-4" /> <span className="min-w-0 flex-1">รอชั่งต้นทาง</span>
           <QueueCount value={queues.origin} />
         </NavLink>
-        <NavLink href="/queues/destination">
+        <NavLink href="/transport/queues/destination">
           <Scale className="size-4" /> <span className="min-w-0 flex-1">รอชั่งปลายทาง</span>
           <QueueCount value={queues.destination} />
         </NavLink>
-        <NavLink href="/queues/variance">
+        <NavLink href="/transport/queues/variance">
           <TriangleAlert className="size-4" /> <span className="min-w-0 flex-1">ส่วนต่างรอตรวจสอบ</span>
           <QueueCount value={queues.variance} />
         </NavLink>
@@ -63,16 +63,16 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             <div className="mt-4 px-3 pb-1 text-xs font-medium text-sidebar-foreground/70">
               ข้อมูลหลัก
             </div>
-            <NavLink href="/masters/transporters">
+            <NavLink href="/transport/masters/transporters">
               <Database className="size-4" /> ผู้รับจ้าง รถ คนขับ
             </NavLink>
-            <NavLink href="/masters/origins">
+            <NavLink href="/transport/masters/origins">
               <Database className="size-4" /> ต้นทาง
             </NavLink>
-            <NavLink href="/masters/factories">
+            <NavLink href="/transport/masters/factories">
               <Database className="size-4" /> โรงงานปลายทาง
             </NavLink>
-            <NavLink href="/masters/commodities">
+            <NavLink href="/transport/masters/commodities">
               <Database className="size-4" /> ประเภทสินค้า
             </NavLink>
           </>
@@ -83,10 +83,10 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             <div className="mt-4 px-3 pb-1 text-xs font-medium text-sidebar-foreground/70">
               ระบบ
             </div>
-            <NavLink href="/settings">
+            <NavLink href="/transport/settings">
               <Settings className="size-4" /> ตั้งค่า
             </NavLink>
-            <NavLink href="/settings/users">
+            <NavLink href="/admin/users">
               <Users className="size-4" /> ผู้ใช้งาน
             </NavLink>
           </>

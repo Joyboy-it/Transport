@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/server/auth";
 import { LoginForm } from "./login-form";
 
 export default async function LoginPage() {
-  if (await getCurrentUser()) redirect("/jobs");
+  if (await getCurrentUser()) redirect("/");
 
   return (
     <main className="flex flex-1 items-center justify-center bg-muted/40 p-6">

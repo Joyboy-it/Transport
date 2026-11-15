@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { saveWeighingAction } from "@/app/(app)/jobs/[id]/weighing-actions";
+import { saveWeighingAction } from "@/app/(app)/transport/jobs/[id]/weighing-actions";
 import { SearchSelect } from "@/components/app/search-select";
 import { Field, FormMessage } from "@/components/app/ui";
 import { Button } from "@/components/ui/button";

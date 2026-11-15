@@ -3,8 +3,8 @@
 import { Wallet } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { cancelJobAction, deleteDraftAction, recordCollectionAction, updateNoteAction } from "@/app/(app)/jobs/actions";
-import { confirmWarningAction } from "@/app/(app)/jobs/[id]/weighing-actions";
+import { cancelJobAction, deleteDraftAction, recordCollectionAction, updateNoteAction } from "@/app/(app)/transport/jobs/actions";
+import { confirmWarningAction } from "@/app/(app)/transport/jobs/[id]/weighing-actions";
 import { Field, FormMessage } from "@/components/app/ui";
 import { jobType } from "@/components/jobs/job-type";
 import { useFormAction } from "@/components/app/use-form-action";

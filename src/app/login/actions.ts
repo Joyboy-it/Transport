@@ -14,7 +14,7 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
   if (!user) return { message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", username };
 
   await startSession(user.id);
-  redirect("/jobs");
+  redirect("/");
 }
 
 export async function logoutAction() {

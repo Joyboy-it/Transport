@@ -163,7 +163,7 @@ export function JobTable({
         {shown.map((line, index) => (
           <TableRow key={line.key} className={lines && line.first && index > 0 ? "border-t-2 border-border" : undefined}>
             <TableCell>
-              <Link href={`/jobs/${line.job.id}`} className="font-medium text-primary underline-offset-4 hover:underline">
+              <Link href={`/transport/jobs/${line.job.id}`} className="font-medium text-primary underline-offset-4 hover:underline">
                 {line.job.jobNumber}
               </Link>
             </TableCell>
