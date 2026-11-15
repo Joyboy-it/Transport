@@ -1,0 +1,328 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  TRANSPORT
+  WEIGHING
+  ACCOUNTING
+  APPROVER
+  VIEWER
+}
+
+enum JobStatus {
+  DRAFT
+  WAITING_ORIGIN
+  WAITING_DESTINATION
+  WEIGHT_REVIEW
+  WEIGHT_CONFIRMED
+  WAITING_PAYMENT
+  PAID
+  CANCELLED
+}
+
+enum ReconciliationStatus {
+  MATCH
+  NORMAL
+  WARNING
+  REVIEW
+  CONFIRMED
+}
+
+enum WeighingSide {
+  ORIGIN
+  DESTINATION
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  displayName  String
+  passwordHash String
+  role         Role
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdById  String?
+  updatedById  String?
+
+  sessions        Session[]
+  responsibleJobs TransportJob[] @relation("JobResponsible")
+  collectedJobs   TransportJob[] @relation("JobCollectedBy")
+}
+
+model Session {
+  /// SHA-256 of the cookie token; the raw token is never stored.
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model CompanyProfile {
+  id          Int      @id @default(1)
+  name        String   @default("")
+  address     String   @default("")
+  taxId       String   @default("")
+  phone       String   @default("")
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+}
+
+model VarianceThreshold {
+  id                 Int      @id @default(1)
+  maxVarianceKg      Decimal  @db.Decimal(14, 2)
+  maxVariancePercent Decimal  @db.Decimal(7, 4)
+  updatedAt          DateTime @updatedAt
+  updatedById        String?
+}
+
+model DocumentSequence {
+  prefix     String
+  year       Int
+  lastNumber Int    @default(0)
+
+  @@id([prefix, year])
+}
+
+model Transporter {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  taxId       String   @default("")
+  address     String   @default("")
+  phone       String   @default("")
+  contactName String   @default("")
+  note        String   @default("")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  vehicles Vehicle[]
+  drivers  Driver[]
+  jobs     TransportJob[]
+}
+
+model Vehicle {
+  id            String   @id @default(cuid())
+  plate         String   @unique
+  vehicleType   String   @default("")
+  transporterId String
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdById   String?
+  updatedById   String?
+
+  transporter Transporter    @relation(fields: [transporterId], references: [id])
+  jobs        TransportJob[]
+}
+
+model Driver {
+  id            String   @id @default(cuid())
+  name          String
+  phone         String   @default("")
+  nationalId    String   @default("")
+  transporterId String
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdById   String?
+  updatedById   String?
+
+  transporter Transporter    @relation(fields: [transporterId], references: [id])
+  jobs        TransportJob[]
+}
+
+model Origin {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  jobs TransportJob[]
+}
+
+model DestinationFactory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  jobs TransportJob[]
+}
+
+model Commodity {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+
+  jobs                 TransportJob[]
+  originWeighings      OriginWeighing[]
+  destinationWeighings DestinationWeighing[]
+  weighingRevisions    WeighingRevision[]
+}
+
+model TransportJob {
+  id                   String     @id @default(cuid())
+  jobNumber            String     @unique
+  status               JobStatus  @default(DRAFT)
+  hireDate             DateTime?  @db.Date
+  transporterId        String?
+  vehicleId            String?
+  driverId             String?
+  commodityId          String?
+  originId             String?
+  destinationFactoryId String?
+  responsibleUserId    String?
+  freightAmount        Decimal?   @db.Decimal(14, 2)
+  /// Money to collect at the destination. Null means this trip collects nothing.
+  collectAmount        Decimal?   @db.Decimal(14, 2)
+  collectedAt          DateTime?
+  collectedById        String?
+  note                 String     @default("")
+
+  /// Frozen at the moment a weighing is saved; later threshold changes do not touch it.
+  reconciliationStatus ReconciliationStatus?
+  variance             Decimal?              @db.Decimal(14, 2)
+  variancePercent      Decimal?              @db.Decimal(12, 6)
+  thresholdKg          Decimal?              @db.Decimal(14, 2)
+  thresholdPercent     Decimal?              @db.Decimal(7, 4)
+  confirmedById        String?
+  confirmedAt          DateTime?
+
+  cancelReason  String?
+  cancelledById String?
+  cancelledAt   DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  updatedById String
+
+  transporter        Transporter?        @relation(fields: [transporterId], references: [id])
+  vehicle            Vehicle?            @relation(fields: [vehicleId], references: [id])
+  driver             Driver?             @relation(fields: [driverId], references: [id])
+  commodity          Commodity?          @relation(fields: [commodityId], references: [id])
+  origin             Origin?             @relation(fields: [originId], references: [id])
+  destinationFactory DestinationFactory? @relation(fields: [destinationFactoryId], references: [id])
+  responsibleUser    User?               @relation("JobResponsible", fields: [responsibleUserId], references: [id])
+  collectedBy        User?               @relation("JobCollectedBy", fields: [collectedById], references: [id])
+
+  originWeighings      OriginWeighing[]
+  destinationWeighings DestinationWeighing[]
+  weighingRevisions   WeighingRevision[]
+  attachments         Attachment[]
+
+  @@index([status])
+  @@index([hireDate])
+}
+
+/// Origin and destination are separate tables so neither side can overwrite the other.
+/// Each side holds one line per commodity; variance compares lines of the same commodity.
+model OriginWeighing {
+  id                 String   @id @default(cuid())
+  jobId              String
+  commodityId        String
+  weighedAt          DateTime
+  ticketNumber       String
+  gross              Decimal  @db.Decimal(14, 2)
+  tare               Decimal  @db.Decimal(14, 2)
+  netBeforeDeduction Decimal  @db.Decimal(14, 2)
+  impurity           Decimal  @db.Decimal(14, 2)
+  net                Decimal  @db.Decimal(14, 2)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  createdById        String
+  updatedById        String
+
+  job       TransportJob @relation(fields: [jobId], references: [id])
+  commodity Commodity    @relation(fields: [commodityId], references: [id])
+
+  @@unique([jobId, commodityId])
+}
+
+model DestinationWeighing {
+  id                 String   @id @default(cuid())
+  jobId              String
+  commodityId        String
+  weighedAt          DateTime
+  ticketNumber       String
+  gross              Decimal  @db.Decimal(14, 2)
+  tare               Decimal  @db.Decimal(14, 2)
+  netBeforeDeduction Decimal  @db.Decimal(14, 2)
+  impurity           Decimal  @db.Decimal(14, 2)
+  net                Decimal  @db.Decimal(14, 2)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  createdById        String
+  updatedById        String
+
+  job       TransportJob @relation(fields: [jobId], references: [id])
+  commodity Commodity    @relation(fields: [commodityId], references: [id])
+
+  @@unique([jobId, commodityId])
+}
+
+/// Previous values of a weighing line edited or removed after the job's weight was confirmed.
+model WeighingRevision {
+  id                 String       @id @default(cuid())
+  jobId              String
+  side               WeighingSide
+  commodityId        String
+  /// The line was removed rather than edited.
+  removed            Boolean      @default(false)
+  weighedAt          DateTime
+  ticketNumber       String
+  gross              Decimal      @db.Decimal(14, 2)
+  tare               Decimal      @db.Decimal(14, 2)
+  netBeforeDeduction Decimal      @db.Decimal(14, 2)
+  impurity           Decimal      @db.Decimal(14, 2)
+  net                Decimal      @db.Decimal(14, 2)
+  reason             String
+  revisedById        String
+  revisedAt          DateTime     @default(now())
+
+  job       TransportJob @relation(fields: [jobId], references: [id])
+  commodity Commodity    @relation(fields: [commodityId], references: [id])
+
+  @@index([jobId, side])
+}
+
+model Attachment {
+  id           String       @id @default(cuid())
+  jobId        String
+  category     WeighingSide
+  relativePath String       @unique
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  uploadedById String
+  createdAt    DateTime     @default(now())
+
+  job TransportJob @relation(fields: [jobId], references: [id])
+
+  @@index([jobId])
+}

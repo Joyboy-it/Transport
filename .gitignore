@@ -32,6 +32,20 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# server logs
+/logs/
+
+# uploaded files
+/storage/
+/storage-test/
+
+# generated prisma client
+/src/generated/
+
+# design mockups from brainstorming sessions
+/.superpowers/
 
 # vercel
 .vercel
