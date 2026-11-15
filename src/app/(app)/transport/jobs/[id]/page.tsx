@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Copy, Factory, FileText, Percent, Scale, TriangleAlert, Truck, Wallet } from "lucide-react";
+import { Pill, type Tone } from "@/components/app/ui";
 import { CancelJobButton, CollectionForm, ConfirmWarningButton, DeleteDraftButton, NoteForm } from "@/components/jobs/job-actions";
 import { HeaderSection } from "@/components/jobs/header-section";
 import { jobType } from "@/components/jobs/job-type";
@@ -33,6 +34,7 @@ import {
   toDateInput,
   toDateTimeInput,
 } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { WeighingFormInput } from "@/lib/weighing-schema";
 import { requireUser } from "@/server/auth";
 import {
@@ -255,7 +257,7 @@ export default async function JobPage({ params }: PageProps<"/transport/jobs/[id
         </div>
         <div className="flex flex-wrap gap-2">
           {can(user.role, "job.create") && (
-            <Link href={`/transport/jobs?copy=${job.id}`} className={buttonVariants({ variant: "outline" })}>
+            <Link href={`/transport/jobs?copy=${job.id}`} className={cn(buttonVariants({ variant: "outline" }))}>
               <Copy /> คัดลอกใบงาน
             </Link>
           )}
@@ -267,7 +269,7 @@ export default async function JobPage({ params }: PageProps<"/transport/jobs/[id
       </div>
 
       {job.status === "CANCELLED" && (
-        <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
+        <div className="mb-4 rounded-lg border border-tone-danger-foreground/20 bg-tone-danger p-4 text-sm text-tone-danger-foreground">
           ยกเลิกโดย {name(job.cancelledById)} เมื่อ {formatDateTime(job.cancelledAt)} · เหตุผล: {job.cancelReason}
         </div>
       )}
@@ -276,12 +278,12 @@ export default async function JobPage({ params }: PageProps<"/transport/jobs/[id
         <HeaderSection key={updatedAt} rows={headerRows} edit={headerEdit} />
 
         {job.status !== "DRAFT" && (
-          <Card className={job.reconciliationStatus === "WARNING" ? "ring-2 ring-red-300" : undefined}>
+          <Card className={job.reconciliationStatus === "WARNING" ? "ring-2 ring-tone-danger-foreground/40" : undefined}>
             <CardHeader>
               <CardTitle>
                 <SectionHeading
                   icon={job.reconciliationStatus === "WARNING" ? TriangleAlert : Scale}
-                  tone={job.reconciliationStatus === "WARNING" ? "bg-red-100 text-red-700" : undefined}
+                  tone={job.reconciliationStatus === "WARNING" ? "bg-tone-danger text-tone-danger-foreground" : undefined}
                   title={
                     <span className="flex flex-wrap items-center gap-2">
                       ส่วนต่างน้ำหนัก <ReconciliationBadge status={job.reconciliationStatus} className="h-7 px-3 text-sm" />
@@ -296,25 +298,25 @@ export default async function JobPage({ params }: PageProps<"/transport/jobs/[id
                   icon={Truck}
                   label="สุทธิต้นทาง"
                   value={`${formatKg(hasOrigin ? reconciled.originNet : null)} กก.`}
-                  tone="bg-sky-50 text-sky-950"
+                  tone="bg-tile text-foreground"
                 />
                 <WeightTile
                   icon={Factory}
                   label="สุทธิปลายทาง"
                   value={`${formatKg(reconciled.destinationNet)} กก.`}
-                  tone="bg-blue-50 text-blue-950"
+                  tone="bg-tile text-foreground"
                 />
                 <WeightTile
                   icon={Scale}
                   label="ส่วนต่าง"
                   value={`${formatSignedKg(job.variance)} กก.`}
-                  tone={job.reconciliationStatus === "WARNING" ? "bg-red-50 text-red-950" : "bg-sky-100 text-sky-950"}
+                  tone={job.reconciliationStatus === "WARNING" ? "bg-tone-danger text-tone-danger-foreground" : "bg-tile text-foreground"}
                 />
                 <WeightTile
                   icon={Percent}
                   label="ส่วนต่าง (%)"
                   value={formatPercent(job.variancePercent)}
-                  tone="bg-violet-50 text-violet-950"
+                  tone={job.reconciliationStatus === "WARNING" ? "bg-tone-danger text-tone-danger-foreground" : "bg-tile text-foreground"}
                 />
               </div>
               {reconciled.lines.length > 1 && (
@@ -331,7 +333,7 @@ export default async function JobPage({ params }: PageProps<"/transport/jobs/[id
                   </TableHeader>
                   <TableBody>
                     {reconciled.lines.map((l) => (
-                      <TableRow key={l.commodityId} className={l.status === "WARNING" ? "bg-red-50/60" : undefined}>
+                      <TableRow key={l.commodityId} className={l.status === "WARNING" ? "bg-tone-danger/60" : undefined}>
                         <TableCell className="font-medium">{commodityName.get(l.commodityId)}</TableCell>
                         <TableCell className="text-right tabular-nums">{formatKg(l.originNet)}</TableCell>
                         <TableCell className="text-right tabular-nums">{formatKg(l.destinationNet)}</TableCell>
@@ -376,7 +378,7 @@ export default async function JobPage({ params }: PageProps<"/transport/jobs/[id
                   ` · ${RECONCILIATION_LABEL.CONFIRMED}โดย ${name(job.confirmedById)} ${formatDateTime(job.confirmedAt)}`}
               </p>
               {showConfirm && (
-                <div className="mt-4 flex items-center gap-3 rounded-lg bg-red-50 p-3 text-sm text-red-900">
+                <div className="mt-4 flex items-center gap-3 rounded-lg bg-tone-danger p-3 text-sm text-tone-danger-foreground">
                   ส่วนต่างเกินเกณฑ์ ต้องให้ผู้อนุมัติตรวจสอบก่อนยืนยันน้ำหนัก
                   <ConfirmWarningButton jobId={job.id} updatedAt={updatedAt} />
                 </div>
@@ -444,11 +446,7 @@ export default async function JobPage({ params }: PageProps<"/transport/jobs/[id
 
 function CollectionSummary({ amount, received, detail }: { amount: string; received: boolean; detail: string }) {
   const status = received ? "ได้รับแล้ว" : amount === "" ? "ไม่เก็บเงิน" : "ยังไม่ได้รับ";
-  const tone = received
-    ? "bg-emerald-100 text-emerald-800"
-    : amount === ""
-      ? "bg-muted text-muted-foreground"
-      : "bg-amber-100 text-amber-900";
+  const tone: Tone = received ? "success" : amount === "" ? "neutral" : "pending";
   return (
     <div className="grid gap-1.5">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -459,9 +457,11 @@ function CollectionSummary({ amount, received, detail }: { amount: string; recei
         <div className="flex h-11 min-w-0 flex-1 items-center rounded-lg border bg-background px-3.5 tabular-nums">
           {amount || "ไม่เก็บเงิน"}
         </div>
-        <span className={`inline-flex h-8 shrink-0 items-center rounded-full px-3 text-xs font-medium ${tone}`}>{status}</span>
+        <Pill tone={tone} dot={false} className="h-8 px-3">
+          {status}
+        </Pill>
       </div>
-      {detail && <p className="text-xs text-emerald-700">{detail}</p>}
+      {detail && <p className="text-xs text-success">{detail}</p>}
     </div>
   );
 }
@@ -479,7 +479,7 @@ function WeightTile({
 }) {
   return (
     <div className={`flex items-center gap-3 rounded-2xl px-4 py-3 ${tone}`}>
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/80">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-card/80">
         <Icon className="size-5" aria-hidden />
       </span>
       <div className="min-w-0">

@@ -101,7 +101,7 @@ function shownLines(jobs: JobListRow[], lines: boolean): ShownLine[] {
 
 function varianceClass(status: ReconciliationStatus | null) {
   const within = status === "MATCH" || status === "NORMAL";
-  return `text-right font-medium tabular-nums${within ? " text-emerald-700" : ""}`;
+  return `text-right font-medium tabular-nums${within ? " text-success" : ""}`;
 }
 
 export function JobTable({
@@ -137,25 +137,25 @@ export function JobTable({
           <TableHead rowSpan={2} className="bg-muted/80">สินค้า</TableHead>
           <TableHead rowSpan={2} className="bg-muted/80">ต้นทาง → โรงงาน</TableHead>
           {showFreight ? (
-            <TableHead colSpan={2} className={`${band} border-l bg-primary/10 text-primary`}>สถานะ</TableHead>
+            <TableHead colSpan={2} className={`${band} border-l bg-band-status text-band-status-foreground`}>สถานะ</TableHead>
           ) : (
-            <TableHead rowSpan={2} className="border-l bg-primary/10 text-primary">สถานะ</TableHead>
+            <TableHead rowSpan={2} className="border-l bg-band-status text-band-status-foreground">สถานะ</TableHead>
           )}
-          {showFreight && <TableHead colSpan={2} className={`${band} border-l bg-amber-100 text-amber-950`}>การเงิน</TableHead>}
-          <TableHead colSpan={5} className={`${band} border-l bg-sky-100 text-sky-950`}>น้ำหนัก</TableHead>
+          {showFreight && <TableHead colSpan={2} className={`${band} border-l bg-band-money text-band-money-foreground`}>การเงิน</TableHead>}
+          <TableHead colSpan={5} className={`${band} border-l bg-band-weight text-band-weight-foreground`}>น้ำหนัก</TableHead>
         </TableRow>
         <TableRow className="hover:bg-transparent">
-          {showFreight && <TableHead className={`${sub} border-l bg-primary/5`} title="สถานะใบงาน">ใบงาน</TableHead>}
-          {showFreight && <TableHead className={`${sub} bg-primary/5`} title="สถานะการเก็บเงิน">เก็บเงิน</TableHead>}
+          {showFreight && <TableHead className={`${sub} border-l bg-band-status-soft`} title="สถานะใบงาน">ใบงาน</TableHead>}
+          {showFreight && <TableHead className={`${sub} bg-band-status-soft`} title="สถานะการเก็บเงิน">เก็บเงิน</TableHead>}
           {showFreight && (
-            <TableHead className={`${sub} border-l bg-amber-50 text-right`} title="ค่าจ้างต่อเที่ยว">ค่าจ้าง</TableHead>
+            <TableHead className={`${sub} border-l bg-band-money-soft text-right`} title="ค่าจ้างต่อเที่ยว">ค่าจ้าง</TableHead>
           )}
-          {showFreight && <TableHead className={`${sub} bg-amber-50 text-right`}>เก็บปลายทาง</TableHead>}
-          <TableHead className={`${sub} border-l bg-sky-50 text-right`}>สุทธิต้นทาง</TableHead>
-          <TableHead className={`${sub} bg-sky-50 text-right`}>สุทธิปลายทาง</TableHead>
-          <TableHead className={`${sub} bg-sky-50 text-right`}>หักปลายทาง</TableHead>
-          <TableHead className={`${sub} bg-sky-50 text-right`}>ส่วนต่าง</TableHead>
-          <TableHead className={`${sub} bg-sky-50 text-right`}>ส่วนต่าง (%)</TableHead>
+          {showFreight && <TableHead className={`${sub} bg-band-money-soft text-right`}>เก็บปลายทาง</TableHead>}
+          <TableHead className={`${sub} border-l bg-band-weight-soft text-right`}>สุทธิต้นทาง</TableHead>
+          <TableHead className={`${sub} bg-band-weight-soft text-right`}>สุทธิปลายทาง</TableHead>
+          <TableHead className={`${sub} bg-band-weight-soft text-right`}>หักปลายทาง</TableHead>
+          <TableHead className={`${sub} bg-band-weight-soft text-right`}>ส่วนต่าง</TableHead>
+          <TableHead className={`${sub} bg-band-weight-soft text-right`}>ส่วนต่าง (%)</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -180,7 +180,7 @@ export function JobTable({
               <JobStatusBadge status={line.job.status} />
             </TableCell>
             {showFreight && (
-              <TableCell className={line.first && line.job.collectedAt ? "font-medium text-emerald-700" : undefined}>
+              <TableCell className={line.first && line.job.collectedAt ? "font-medium text-success" : undefined}>
                 {line.first ? (line.job.collectAmount ? (line.job.collectedAt ? "ได้รับแล้ว" : "ยังไม่ได้รับ") : "–") : ""}
               </TableCell>
             )}

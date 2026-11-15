@@ -5,7 +5,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { cancelJobAction, deleteDraftAction, recordCollectionAction, updateNoteAction } from "@/app/(app)/transport/jobs/actions";
 import { confirmWarningAction } from "@/app/(app)/transport/jobs/[id]/weighing-actions";
-import { Field, FormMessage } from "@/components/app/ui";
+import { Field, FormMessage, Pill, type Tone } from "@/components/app/ui";
 import { jobType } from "@/components/jobs/job-type";
 import { useFormAction } from "@/components/app/use-form-action";
 import { Button } from "@/components/ui/button";
@@ -114,11 +114,7 @@ export function CollectionForm({
 }) {
   const { state, onSubmit, pending } = useFormAction(recordCollectionAction.bind(null, jobId, updatedAt));
   const status = received ? "ได้รับแล้ว" : amount.trim() === "" ? "ไม่เก็บเงิน" : "ยังไม่ได้รับ";
-  const statusTone = received
-    ? "bg-emerald-100 text-emerald-800"
-    : amount.trim() === ""
-      ? "bg-muted text-muted-foreground"
-      : "bg-amber-100 text-amber-900";
+  const statusTone: Tone = received ? "success" : amount.trim() === "" ? "neutral" : "pending";
   return (
     <form onSubmit={onSubmit} className="grid gap-3">
       <input type="hidden" name="wasReceived" value={received ? "1" : ""} />
@@ -141,14 +137,14 @@ export function CollectionForm({
               บาท
             </span>
           </div>
-          <span className={`inline-flex h-8 shrink-0 items-center rounded-full px-3 text-xs font-medium ${statusTone}`}>
+          <Pill tone={statusTone} dot={false} className="h-8 px-3">
             {status}
-          </span>
+          </Pill>
         </div>
         {state?.fieldErrors?.collectAmount && (
           <p className="text-xs text-destructive">{state.fieldErrors.collectAmount}</p>
         )}
-        {receivedLabel && <p className="text-xs text-emerald-700">{receivedLabel}</p>}
+        {receivedLabel && <p className="text-xs text-success">{receivedLabel}</p>}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button type="submit" name="intent" value="save" variant="outline" size="sm" disabled={pending}>
