@@ -21,7 +21,7 @@ const pairs: [string, string][] = [
   ["foreground", "background"], ["foreground", "card"],
   ["muted-foreground", "background"], ["muted-foreground", "card"], ["muted-foreground", "muted"], ["muted-foreground", "tile"],
   ["primary", "card"], ["primary-foreground", "primary"], ["secondary-foreground", "secondary"],
-  ["success", "card"], ["destructive", "card"],
+  ["success", "card"], ["destructive", "card"], ["destructive", "tone-danger"],
   ["rail-foreground", "rail"], ["rail-active-foreground", "rail-active"],
   ["sidebar-foreground", "sidebar"], ["sidebar-accent-foreground", "sidebar-accent"],
   ...tones.map((t): [string, string] => [`tone-${t}-foreground`, `tone-${t}`]),
