@@ -85,7 +85,7 @@ export function SearchSelect({
           setCreateError(null);
           setOpen(true);
         }}
-        className="flex h-11 w-full items-center justify-between gap-2 rounded-lg border border-input bg-card px-3.5 text-left text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="flex h-11 w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3.5 text-left text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
       >
         <span className={cn("min-w-0 truncate", !selected && "text-muted-foreground")}>
           {selected?.label ?? emptyLabel}
