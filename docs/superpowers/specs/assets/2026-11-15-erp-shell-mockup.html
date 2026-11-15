@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ตัวอย่างโทนสี - โครงแบบ A</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    display: flex; flex-direction: column; overflow: hidden;
+    font-family: "Leelawadee UI", "Noto Sans Thai", Tahoma, "Segoe UI", sans-serif;
+    font-size: 14px; line-height: 1.5; color: #0f172a; background: #0b0b0d;
+  }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---------- chooser bar (not part of the design) ---------- */
+  .chooser { flex: none; background: #18181b; color: #f4f4f5; padding: 10px 16px; border-bottom: 1px solid #3f3f46; }
+  .chooser-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .chooser-title { font-weight: 600; font-size: 15px; }
+  .chooser-title small { display: block; font-weight: 400; font-size: 12px; color: #a1a1aa; }
+  .seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 10px; background: #27272a; }
+  .seg button { min-height: 36px; padding: 0 14px; border-radius: 7px; font-size: 13px; color: #d4d4d8; display: inline-flex; align-items: center; gap: 8px; }
+  .seg button:hover { background: #3f3f46; }
+  .seg button[aria-pressed="true"] { background: #fafafa; color: #18181b; font-weight: 600; }
+  .seg .sw { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
+  .pick { margin-left: auto; min-height: 40px; padding: 0 18px; border-radius: 9px; background: #fde047; color: #1c1917; font-weight: 700; }
+  .pick:hover { background: #facc15; }
+  .note { margin-top: 8px; font-size: 13px; color: #d4d4d8; }
+  .note b { color: #fff; }
+  .saved { color: #86efac; font-weight: 600; }
+
+  /* ---------- status tones: same meaning in every look ---------- */
+  .app {
+    --t-neutral-bg: #f1f5f9; --t-neutral-fg: #475569;
+    --t-info-bg: #e0f2fe;    --t-info-fg: #075985;
+    --t-info2-bg: #e0e7ff;   --t-info2-fg: #3730a3;
+    --t-warn-bg: #fef3c7;    --t-warn-fg: #92400e;
+    --t-ok-bg: #d1fae5;      --t-ok-fg: #065f46;
+    --t-danger-bg: #ffe4e6;  --t-danger-fg: #9f1239;
+    --ok-text: #047857; --danger-text: #be123c;
+  }
+
+  /* ---------- look 1: corporate navy ---------- */
+  .app[data-theme="navy"] {
+    --rail-bg: #0b1f4b; --rail-fg: #b8c4e0; --rail-hover: rgba(255,255,255,.09);
+    --rail-on-bg: #2563eb; --rail-on-fg: #fff; --mark-bg: #2563eb; --mark-fg: #fff;
+    --menu-bg: #fff; --menu-fg: #334155; --menu-muted: #64748b; --menu-hover: #f1f5f9;
+    --menu-on-bg: #eff4ff; --menu-on-fg: #1d4ed8; --menu-edge: 1px solid #e2e8f0; --menu-shadow: none;
+    --top-bg: #fff; --top-edge: #e2e8f0;
+    --canvas: #f3f5f9; --card: #fff; --card-edge: #e2e8f0;
+    --card-shadow: 0 1px 2px rgba(15,23,42,.06), 0 6px 16px -8px rgba(15,23,42,.14);
+    --radius: 10px; --text: #0f172a; --muted: #64748b; --line: #e8edf3;
+    --primary: #1d4ed8; --primary-fg: #fff; --primary-shadow: 0 1px 2px rgba(29,78,216,.4);
+    --head-bg: #f1f5f9; --head-fg: #475569; --row-hover: #f8fafc;
+    --g1-bg: #e6eeff; --g1-fg: #1d4ed8; --g2-bg: #f1ebff; --g2-fg: #5b21b6; --g3-bg: #dff6fb; --g3-fg: #0e7490;
+    --tile-bg: #f6f8fc;
+  }
+  /* ---------- look 2: emerald and charcoal ---------- */
+  .app[data-theme="emerald"] {
+    --rail-bg: #111827; --rail-fg: #9ca3af; --rail-hover: rgba(255,255,255,.08);
+    --rail-on-bg: #059669; --rail-on-fg: #fff; --mark-bg: #10b981; --mark-fg: #052e21;
+    --menu-bg: #fafaf9; --menu-fg: #374151; --menu-muted: #6b7280; --menu-hover: #efefec;
+    --menu-on-bg: #e3f5ec; --menu-on-fg: #047857; --menu-edge: 1px solid #e7e5e4; --menu-shadow: none;
+    --top-bg: #fff; --top-edge: #e7e5e4;
+    --canvas: #f5f5f4; --card: #fff; --card-edge: #dedbd8;
+    --card-shadow: none;
+    --radius: 6px; --text: #1c1917; --muted: #6b7280; --line: #ecebe9;
+    --primary: #047857; --primary-fg: #fff; --primary-shadow: none;
+    --head-bg: #f5f5f4; --head-fg: #57534e; --row-hover: #fafaf9;
+    --g1-bg: #e3f5ec; --g1-fg: #047857; --g2-bg: #eceefd; --g2-fg: #3730a3; --g3-bg: #e2f6f4; --g3-fg: #0f766e;
+    --tile-bg: #f7f7f5;
+  }
+  /* ---------- look 3: indigo with depth ---------- */
+  .app[data-theme="indigo"] {
+    --rail-bg: linear-gradient(180deg, #4f46e5 0%, #3730a3 55%, #312e81 100%); --rail-fg: #c7d2fe; --rail-hover: rgba(255,255,255,.12);
+    --rail-on-bg: rgba(255,255,255,.2); --rail-on-fg: #fff; --mark-bg: #fff; --mark-fg: #4338ca;
+    --menu-bg: #fff; --menu-fg: #3f4260; --menu-muted: #6b6f8c; --menu-hover: #f4f4ff;
+    --menu-on-bg: #eceeff; --menu-on-fg: #4338ca; --menu-edge: 0; --menu-shadow: 6px 0 24px -14px rgba(49,46,129,.45);
+    --top-bg: rgba(255,255,255,.86); --top-edge: transparent;
+    --canvas: linear-gradient(160deg, #eef1fb 0%, #f3f0fb 100%); --card: #fff; --card-edge: transparent;
+    --card-shadow: 0 1px 2px rgba(49,46,129,.07), 0 14px 30px -14px rgba(49,46,129,.28);
+    --radius: 16px; --text: #1f2440; --muted: #5d6280; --line: #ecedf6;
+    --primary: #4f46e5; --primary-fg: #fff; --primary-shadow: 0 6px 14px -6px rgba(79,70,229,.7);
+    --head-bg: #f4f5fb; --head-fg: #51567a; --row-hover: #f8f8ff;
+    --g1-bg: #e9ebff; --g1-fg: #4338ca; --g2-bg: #fbe8f3; --g2-fg: #9d174d; --g3-bg: #dff6fb; --g3-fg: #0e7490;
+    --tile-bg: #f6f6fd;
+  }
+
+  /* ---------- app shell ---------- */
+  .app { flex: 1; min-height: 0; display: grid; grid-template-columns: 76px 232px minmax(0, 1fr); color: var(--text); }
+  .app, .app * { transition: background-color .25s ease, color .2s ease, border-color .25s ease, box-shadow .25s ease, border-radius .25s ease; }
+
+  .rail { background: var(--rail-bg); color: var(--rail-fg); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 0; }
+  .mark { width: 40px; height: 40px; border-radius: 12px; background: var(--mark-bg); color: var(--mark-fg); display: grid; place-items: center; margin-bottom: 10px; }
+  .mark svg { width: 22px; height: 22px; }
+  .rail button { width: 64px; min-height: 56px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 12px; }
+  .rail button svg { width: 20px; height: 20px; }
+  .rail button:hover { background: var(--rail-hover); color: #fff; }
+  .rail button.on { background: var(--rail-on-bg); color: var(--rail-on-fg); font-weight: 600; }
+  .rail button.later { opacity: .42; }
+  .rail .push { margin-top: auto; }
+
+  .menu { background: var(--menu-bg); color: var(--menu-fg); border-right: var(--menu-edge); box-shadow: var(--menu-shadow); display: flex; flex-direction: column; min-height: 0; position: relative; z-index: 1; }
+  .menu-head { padding: 16px 16px 12px; }
+  .menu-head small { display: block; font-size: 12px; color: var(--menu-muted); }
+  .menu-head strong { font-size: 16px; color: var(--text); }
+  .menu nav { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
+  .menu .grp { padding: 14px 10px 6px; font-size: 12px; font-weight: 600; color: var(--menu-muted); }
+  .menu a { display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 0 10px; border-radius: 8px; color: inherit; text-decoration: none; cursor: pointer; }
+  .menu a:hover { background: var(--menu-hover); }
+  .menu a.on { background: var(--menu-on-bg); color: var(--menu-on-fg); font-weight: 600; }
+  .app[data-theme="navy"] .menu a.on { box-shadow: inset 3px 0 0 var(--primary); }
+  .menu a span { flex: 1; min-width: 0; }
+  .count { flex: none; min-width: 22px; height: 20px; padding: 0 6px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--menu-on-bg); color: var(--menu-on-fg); }
+  .count.zero { background: var(--menu-hover); color: var(--menu-muted); font-weight: 500; }
+
+  .work { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--canvas); }
+  .topbar { flex: none; height: 54px; padding: 0 20px 0 12px; display: flex; align-items: center; gap: 10px; background: var(--top-bg); border-bottom: 1px solid var(--top-edge); backdrop-filter: blur(8px); }
+  .iconbtn { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; color: var(--muted); }
+  .iconbtn:hover { background: var(--menu-hover); color: var(--text); }
+  .crumb { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
+  .crumb b { color: var(--text); font-weight: 600; }
+  .crumb svg { width: 14px; height: 14px; }
+  .who { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--menu-on-bg); color: var(--menu-on-fg); display: grid; place-items: center; font-weight: 700; }
+  .who div { line-height: 1.25; }
+  .who small { display: block; font-size: 12px; color: var(--muted); }
+
+  .canvas { flex: 1; overflow: auto; padding: 22px 24px 40px; }
+  .screen[hidden] { display: none; }
+  .screen { animation: rise .3s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .screen { animation: none; } .app, .app * { transition: none; } }
+
+  .pagehead { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .pagehead h1 { font-size: 22px; font-weight: 700; line-height: 1.3; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .pagehead p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn { min-height: 38px; padding: 0 14px; border-radius: calc(var(--radius) * .8); display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; border: 1px solid var(--card-edge); background: var(--card); color: var(--text); box-shadow: var(--card-shadow); }
+  .app[data-theme="indigo"] .btn { border-color: #e4e6f5; box-shadow: none; }
+  .btn:hover { background: var(--row-hover); }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--primary); color: var(--primary-fg); border-color: transparent; box-shadow: var(--primary-shadow); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.danger { background: var(--card); color: var(--danger-text); }
+  .btn.danger:hover { background: var(--t-danger-bg); }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .toggle { display: inline-flex; padding: 3px; border-radius: calc(var(--radius) * .8); background: var(--head-bg); }
+  .toggle span { padding: 5px 12px; border-radius: calc(var(--radius) * .6); font-size: 13px; color: var(--muted); }
+  .toggle span.on { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(15,23,42,.12); }
+
+  .card { background: var(--card); border: 1px solid var(--card-edge); border-radius: var(--radius); box-shadow: var(--card-shadow); overflow: hidden; }
+  .card + .card, .cols { margin-top: 16px; }
+  .card-head { padding: 14px 16px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; }
+  .card-head .ico { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--menu-on-bg); color: var(--menu-on-fg); }
+  .card-head .ico.bad { background: var(--t-danger-bg); color: var(--t-danger-fg); }
+  .card-head .btn { margin-left: auto; min-height: 32px; font-size: 13px; }
+  .card-body { padding: 14px 16px 16px; }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .cols .card + .card { margin-top: 0; }
+
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 9px 10px; text-align: left; white-space: nowrap; }
+  thead th { background: var(--head-bg); color: var(--head-fg); font-weight: 600; border-bottom: 1px solid var(--line); }
+  thead tr + tr th { font-weight: 500; font-size: 12px; padding-top: 6px; padding-bottom: 6px; }
+  th.g1 { background: var(--g1-bg); color: var(--g1-fg); } th.g2 { background: var(--g2-bg); color: var(--g2-fg); } th.g3 { background: var(--g3-bg); color: var(--g3-fg); }
+  th.g1.sub { background: color-mix(in srgb, var(--g1-bg) 45%, var(--card)); } th.g2.sub { background: color-mix(in srgb, var(--g2-bg) 45%, var(--card)); } th.g3.sub { background: color-mix(in srgb, var(--g3-bg) 45%, var(--card)); }
+  th.band { text-align: center; }
+  tbody td { border-bottom: 1px solid var(--line); }
+  tbody tr:hover td { background: var(--row-hover); }
+  tfoot td { background: var(--head-bg); font-weight: 700; }
+  .sep { border-left: 1px solid var(--line); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .joblink { color: var(--primary); font-weight: 600; }
+  .sub2 { display: block; font-size: 12px; color: var(--muted); }
+  .good { color: var(--ok-text); font-weight: 600; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .8; }
+  .pill.big { height: 26px; font-size: 13px; }
+  .neutral { background: var(--t-neutral-bg); color: var(--t-neutral-fg); }
+  .info { background: var(--t-info-bg); color: var(--t-info-fg); }
+  .info2 { background: var(--t-info2-bg); color: var(--t-info2-fg); }
+  .warn { background: var(--t-warn-bg); color: var(--t-warn-fg); }
+  .ok { background: var(--t-ok-bg); color: var(--t-ok-fg); }
+  .danger { background: var(--t-danger-bg); color: var(--t-danger-fg); }
+  .struck { text-decoration: line-through; }
+
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px 20px; }
+  .facts dt { font-size: 12px; color: var(--muted); }
+  .facts dd { font-weight: 600; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .tile { padding: 12px 14px; border-radius: calc(var(--radius) * .8); background: var(--tile-bg); }
+  .tile small { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .tile small svg { width: 14px; height: 14px; }
+  .tile b { display: block; margin-top: 2px; font-size: 20px; font-variant-numeric: tabular-nums; }
+  .tile.bad { background: var(--t-danger-bg); } .tile.bad small, .tile.bad b { color: var(--t-danger-fg); }
+  .alert { margin-top: 14px; padding: 12px 14px; border-radius: calc(var(--radius) * .8); background: var(--t-danger-bg); color: var(--t-danger-fg); display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .alert span { flex: 1; min-width: 220px; }
+  .field { margin-top: 14px; display: grid; gap: 6px; }
+  .field label { font-size: 13px; font-weight: 600; }
+  .field .row { display: flex; gap: 8px; }
+  .input { flex: 1; min-width: 0; height: 40px; padding: 0 12px; border-radius: calc(var(--radius) * .7); border: 1px solid #cbd5e1; background: var(--card); font: inherit; color: var(--text); }
+  .input:focus { outline: 3px solid color-mix(in srgb, var(--primary) 30%, transparent); border-color: var(--primary); }
+  .back { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+  .back svg { width: 14px; height: 14px; transform: rotate(180deg); }
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 8.7 5 8.7-5"/></symbol>
+  <symbol id="i-calc" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M8 6h8"/><path d="M16 14v4"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 18v-6"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M21 4h-7"/><path d="M10 4H3"/><path d="M21 12h-9"/><path d="M8 12H3"/><path d="M21 20h-5"/><path d="M12 20H3"/><path d="M14 2v4"/><path d="M8 10v4"/><path d="M16 18v4"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-factory" viewBox="0 0 24 24"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></symbol>
+  <symbol id="i-pct" viewBox="0 0 24 24"><path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+</svg>
+
+<header class="chooser">
+  <div class="chooser-row">
+    <div class="chooser-title">ตัวอย่างหน้าจอใหม่ (โครงแบบ A)<small>ข้อมูลในภาพเป็นข้อมูลสมมติ ยังไม่ได้แก้โปรแกรมจริง</small></div>
+    <div class="seg" role="group" aria-label="โทนสี">
+      <button data-choice="view-navy" data-theme="navy" aria-pressed="true"><i class="sw" style="background:#1d4ed8"></i>1 น้ำเงินองค์กร</button>
+      <button data-choice="view-emerald" data-theme="emerald" aria-pressed="false"><i class="sw" style="background:#059669"></i>2 เขียวมรกต</button>
+      <button data-choice="view-indigo" data-theme="indigo" aria-pressed="false"><i class="sw" style="background:#6366f1"></i>3 ครามมีมิติ</button>
+    </div>
+    <div class="seg" role="group" aria-label="หน้าตัวอย่าง">
+      <button data-choice="screen-list" data-screen="list" aria-pressed="true">รายการใบงาน</button>
+      <button data-choice="screen-detail" data-screen="detail" aria-pressed="false">รายละเอียดใบงาน</button>
+    </div>
+    <button class="pick" id="pick" data-choice="pick-navy">เลือกโทนนี้</button>
+  </div>
+  <p class="note" id="note"></p>
+</header>
+
+<div class="app" id="app" data-theme="navy">
+  <nav class="rail" aria-label="ระบบ">
+    <div class="mark"><svg class="i"><use href="#i-box"/></svg></div>
+    <button><svg class="i"><use href="#i-home"/></svg>หน้าแรก</button>
+    <button class="on"><svg class="i"><use href="#i-truck"/></svg>ขนส่ง</button>
+    <button class="later" title="ตัวอย่างตำแหน่งของระบบที่จะเพิ่มภายหลัง"><svg class="i"><use href="#i-cart"/></svg>จัดซื้อ</button>
+    <button class="later" title="ตัวอย่างตำแหน่งของระบบที่จะเพิ่มภายหลัง"><svg class="i"><use href="#i-box"/></svg>คลัง</button>
+    <button class="later" title="ตัวอย่างตำแหน่งของระบบที่จะเพิ่มภายหลัง"><svg class="i"><use href="#i-calc"/></svg>บัญชี</button>
+    <button class="push"><svg class="i"><use href="#i-shield"/></svg>ผู้ดูแล</button>
+  </nav>
+
+  <aside class="menu">
+    <div class="menu-head"><small>ระบบ</small><strong>จ้างรถขนส่ง</strong></div>
+    <nav aria-label="เมนูของระบบ">
+      <a class="on"><svg class="i"><use href="#i-list"/></svg><span>ใบงาน</span></a>
+      <a><svg class="i"><use href="#i-plus"/></svg><span>สร้างใบงาน</span></a>
+      <div class="grp">คิวงาน</div>
+      <a><svg class="i"><use href="#i-scale"/></svg><span>รอชั่งต้นทาง</span><b class="count">3</b></a>
+      <a><svg class="i"><use href="#i-scale"/></svg><span>รอชั่งปลายทาง</span><b class="count">2</b></a>
+      <a><svg class="i"><use href="#i-alert"/></svg><span>ส่วนต่างรอตรวจสอบ</span><b class="count">1</b></a>
+      <div class="grp">ข้อมูลหลัก</div>
+      <a><svg class="i"><use href="#i-db"/></svg><span>ผู้รับจ้าง รถ คนขับ</span></a>
+      <a><svg class="i"><use href="#i-db"/></svg><span>ต้นทาง</span></a>
+      <a><svg class="i"><use href="#i-db"/></svg><span>โรงงานปลายทาง</span></a>
+      <a><svg class="i"><use href="#i-db"/></svg><span>ประเภทสินค้า</span></a>
+      <div class="grp">ตั้งค่าระบบนี้</div>
+      <a><svg class="i"><use href="#i-sliders"/></svg><span>เกณฑ์ส่วนต่าง</span></a>
+    </nav>
+  </aside>
+
+  <div class="work">
+    <div class="topbar">
+      <button class="iconbtn" aria-label="ย่อเมนู"><svg class="i"><use href="#i-panel"/></svg></button>
+      <div class="crumb">จ้างรถขนส่ง <svg class="i"><use href="#i-chev"/></svg> <b id="crumb">ใบงาน</b></div>
+      <div class="who">
+        <span class="avatar">ผ</span>
+        <div>ผู้ดูแลระบบ<small>admin · ผู้ดูแลระบบ</small></div>
+        <button class="iconbtn" aria-label="ออกจากระบบ" title="ออกจากระบบ"><svg class="i"><use href="#i-out"/></svg></button>
+      </div>
+    </div>
+
+    <main class="canvas">
+      <section class="screen" id="screen-list">
+        <div class="pagehead">
+          <div><h1>ใบงาน</h1><p>พบ 5 ใบงาน</p></div>
+          <div class="actions"><button class="btn primary"><svg class="i"><use href="#i-plus"/></svg>สร้างใบงาน</button></div>
+        </div>
+        <div class="toolbar">
+          <button class="btn"><svg class="i"><use href="#i-sliders"/></svg>ตัวกรอง <span style="font-weight:400;color:var(--muted)">15/11/2569</span></button>
+          <div class="toggle"><span class="on">รวมรายการ</span><span>แยกรายการ</span></div>
+        </div>
+        <div class="card">
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th rowspan="2">เลขที่ใบงาน</th><th rowspan="2">วันที่จ้าง</th><th rowspan="2">ผู้รับจ้าง<span class="sub2">ทะเบียน</span></th><th rowspan="2">สินค้า</th><th rowspan="2">ต้นทาง → โรงงาน</th>
+                  <th colspan="2" class="band g1 sep">สถานะ</th><th colspan="2" class="band g2 sep">การเงิน</th><th colspan="5" class="band g3 sep">น้ำหนัก</th>
+                </tr>
+                <tr>
+                  <th class="g1 sub sep">ใบงาน</th><th class="g1 sub">เก็บเงิน</th>
+                  <th class="g2 sub sep num">ค่าจ้าง</th><th class="g2 sub num">เก็บปลายทาง</th>
+                  <th class="g3 sub sep num">สุทธิต้นทาง</th><th class="g3 sub num">สุทธิปลายทาง</th><th class="g3 sub num">หักปลายทาง</th><th class="g3 sub num">ส่วนต่าง</th><th class="g3 sub num">ส่วนต่าง (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="joblink">JOB-2026-00042</span></td><td>15/11/2569</td><td>หจก. ทรัพย์ทวีขนส่ง<span class="sub2">70-4821 นครราชสีมา</span></td><td>มันเส้น</td><td>ลานสีคิ้ว → โรงงานแป้งโคราช</td>
+                  <td class="sep"><span class="pill info">รอชั่งต้นทาง</span></td><td>–</td><td class="sep num">8,500.00</td><td class="num">–</td><td class="sep num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+                <tr><td><span class="joblink">JOB-2026-00041</span></td><td>15/11/2569</td><td>บจก. เอกชัยโลจิสติกส์<span class="sub2">82-1190 ขอนแก่น</span></td><td>ข้าวโพด</td><td>ลานชุมแพ → โรงงานอาหารสัตว์สระบุรี</td>
+                  <td class="sep"><span class="pill info2">รอชั่งปลายทาง</span></td><td>ยังไม่ได้รับ</td><td class="sep num">12,000.00</td><td class="num">4,000.00</td><td class="sep num">28,450</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+                <tr><td><span class="joblink">JOB-2026-00040</span></td><td>14/11/2569</td><td>นายสมชาย ใจดี<span class="sub2">71-3307 ชัยภูมิ</span></td><td>มันเส้น</td><td>ลานสีคิ้ว → โรงงานแป้งโคราช</td>
+                  <td class="sep"><span class="pill warn">รอตรวจสอบน้ำหนัก</span></td><td>–</td><td class="sep num">9,200.00</td><td class="num">–</td><td class="sep num">30,120</td><td class="num">29,480</td><td class="num">150</td><td class="num"><b>+640</b></td><td class="num"><b>2.12%</b></td></tr>
+                <tr><td><span class="joblink">JOB-2026-00039</span></td><td>14/11/2569</td><td>หจก. ทรัพย์ทวีขนส่ง<span class="sub2">70-4821 นครราชสีมา</span></td><td>มันเส้น</td><td>ลานสีคิ้ว → โรงงานแป้งโคราช</td>
+                  <td class="sep"><span class="pill ok">ยืนยันน้ำหนักแล้ว</span></td><td class="good">ได้รับแล้ว</td><td class="sep num">8,500.00</td><td class="num">3,000.00</td><td class="sep num">27,800</td><td class="num">27,760</td><td class="num">0</td><td class="num good">+40</td><td class="num good">0.14%</td></tr>
+                <tr><td><span class="joblink">JOB-2026-00038</span></td><td>13/11/2569</td><td>บจก. เอกชัยโลจิสติกส์<span class="sub2">82-1190 ขอนแก่น</span></td><td>ข้าวโพด</td><td>ลานชุมแพ → โรงงานอาหารสัตว์สระบุรี</td>
+                  <td class="sep"><span class="pill danger struck">ยกเลิก</span></td><td>–</td><td class="sep num">12,000.00</td><td class="num">–</td><td class="sep num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+              </tbody>
+              <tfoot>
+                <tr><td colspan="5">รวม 5 ใบงาน</td><td class="sep"></td><td class="num">3,000.00</td><td class="sep num">50,200.00</td><td class="num">7,000.00</td><td class="sep num">86,370</td><td class="num">57,240</td><td class="num">150</td><td class="num">+680</td><td class="num">1.17%</td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-detail" hidden>
+        <span class="back"><svg class="i"><use href="#i-chev"/></svg>กลับไปรายการใบงาน</span>
+        <div class="pagehead">
+          <div><h1>JOB-2026-00040 <span class="pill big warn">รอตรวจสอบน้ำหนัก</span></h1><p>สร้างโดย สมหญิง · 14/11/2569 08:42</p></div>
+          <div class="actions"><button class="btn"><svg class="i"><use href="#i-copy"/></svg>คัดลอกใบงาน</button><button class="btn danger">ยกเลิกใบงาน</button></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="ico"><svg class="i"><use href="#i-list"/></svg></span>หัวใบงาน<button class="btn">แก้ไข</button></div>
+          <div class="card-body">
+            <dl class="facts">
+              <div><dt>วันที่จ้าง</dt><dd>14/11/2569</dd></div>
+              <div><dt>ผู้รับจ้าง</dt><dd>นายสมชาย ใจดี</dd></div>
+              <div><dt>รถ</dt><dd>71-3307 ชัยภูมิ</dd></div>
+              <div><dt>คนขับ</dt><dd>นายประเสริฐ มั่นคง</dd></div>
+              <div><dt>ประเภทสินค้า</dt><dd>มันเส้น</dd></div>
+              <div><dt>ต้นทาง</dt><dd>ลานสีคิ้ว</dd></div>
+              <div><dt>โรงงานปลายทาง</dt><dd>โรงงานแป้งโคราช</dd></div>
+              <div><dt>ค่าจ้างต่อเที่ยว</dt><dd>9,200.00 บาท</dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="ico bad"><svg class="i"><use href="#i-alert"/></svg></span>ส่วนต่างน้ำหนัก <span class="pill big danger">เกินเกณฑ์</span></div>
+          <div class="card-body">
+            <div class="tiles">
+              <div class="tile"><small><svg class="i"><use href="#i-truck"/></svg>สุทธิต้นทาง</small><b>30,120 กก.</b></div>
+              <div class="tile"><small><svg class="i"><use href="#i-factory"/></svg>สุทธิปลายทาง</small><b>29,480 กก.</b></div>
+              <div class="tile bad"><small><svg class="i"><use href="#i-scale"/></svg>ส่วนต่าง</small><b>+640 กก.</b></div>
+              <div class="tile bad"><small><svg class="i"><use href="#i-pct"/></svg>ส่วนต่าง (%)</small><b>2.12%</b></div>
+            </div>
+            <div class="alert"><svg class="i"><use href="#i-alert"/></svg><span>ส่วนต่างเกินเกณฑ์ ต้องให้ผู้อนุมัติยืนยันก่อนใบงานไปขั้นต่อไป</span><button class="btn primary">ยืนยันส่วนต่าง</button></div>
+          </div>
+        </div>
+
+        <div class="cols">
+          <div class="card">
+            <div class="card-head"><span class="ico"><svg class="i"><use href="#i-truck"/></svg></span>การชั่งต้นทาง<button class="btn">แก้ไขน้ำหนัก</button></div>
+            <div class="card-body">
+              <dl class="facts">
+                <div><dt>น้ำหนักหนัก</dt><dd>45,320 กก.</dd></div>
+                <div><dt>น้ำหนักเบา</dt><dd>15,200 กก.</dd></div>
+                <div><dt>หักสิ่งเจือปน</dt><dd>0 กก.</dd></div>
+                <div><dt>น้ำหนักสุทธิ</dt><dd>30,120 กก.</dd></div>
+              </dl>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="ico"><svg class="i"><use href="#i-factory"/></svg></span>การชั่งปลายทาง</div>
+            <div class="card-body">
+              <dl class="facts">
+                <div><dt>น้ำหนักหนัก</dt><dd>44,830 กก.</dd></div>
+                <div><dt>น้ำหนักเบา</dt><dd>15,200 กก.</dd></div>
+                <div><dt>หักสิ่งเจือปน</dt><dd>150 กก.</dd></div>
+                <div><dt>น้ำหนักสุทธิ</dt><dd>29,480 กก.</dd></div>
+              </dl>
+              <div class="field">
+                <label for="ticket">เลขที่ใบชั่ง</label>
+                <div class="row"><input class="input" id="ticket" value="WT-88213"><button class="btn primary">บันทึก</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+  var notes = {
+    navy: '<b>1 น้ำเงินองค์กร:</b> แถบระบบน้ำเงินเข้ม เมนูขาว พื้นเทาอ่อน การ์ดมีเงาบาง ดูเป็นทางการแบบโปรแกรมองค์กร',
+    emerald: '<b>2 เขียวมรกต:</b> แถบระบบสีถ่าน ปุ่มหลักสีเขียว พื้นโทนอุ่น เส้นขอบคม ไม่มีเงา ดูเรียบและอ่านตารางง่ายที่สุด',
+    indigo: '<b>3 ครามมีมิติ:</b> แถบระบบไล่สีคราม การ์ดมุมโค้งและมีเงาลอย ดูทันสมัยและมีมิติที่สุด'
+  };
+  var tail = ' · ระบบสีจางในแถบซ้าย (จัดซื้อ คลัง บัญชี) เป็นแค่ตัวอย่างตำแหน่งของระบบที่จะเพิ่มภายหลัง';
+  var app = document.getElementById('app');
+  var note = document.getElementById('note');
+  var pick = document.getElementById('pick');
+
+  function press(group, active) {
+    group.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b === active ? 'true' : 'false'); });
+  }
+  function setTheme(button) {
+    var theme = button.dataset.theme;
+    app.dataset.theme = theme;
+    pick.dataset.choice = 'pick-' + theme;
+    pick.textContent = 'เลือกโทนนี้';
+    note.innerHTML = notes[theme] + tail;
+    press(button.parentElement, button);
+  }
+  function setScreen(button) {
+    var screen = button.dataset.screen;
+    document.getElementById('screen-list').hidden = screen !== 'list';
+    document.getElementById('screen-detail').hidden = screen !== 'detail';
+    document.getElementById('crumb').textContent = screen === 'list' ? 'ใบงาน' : 'ใบงาน · JOB-2026-00040';
+    press(button.parentElement, button);
+  }
+  document.querySelectorAll('[data-theme]').forEach(function (b) {
+    if (b.tagName === 'BUTTON') b.addEventListener('click', function () { setTheme(b); });
+  });
+  document.querySelectorAll('[data-screen]').forEach(function (b) {
+    b.addEventListener('click', function () { setScreen(b); });
+  });
+  pick.addEventListener('click', function () {
+    note.innerHTML = '<span class="saved">บันทึกตัวเลือกแล้ว</span> กลับไปตอบในแชตได้เลย จะบอกเพิ่มว่าอยากปรับตรงไหนก็ได้';
+    pick.textContent = 'เลือกแล้ว';
+  });
+  note.innerHTML = notes.navy + tail;
+</script>
+</body>
+</html>
