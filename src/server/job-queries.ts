@@ -2,7 +2,7 @@ import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
 import { Decimal } from "@/domain/decimal";
 import { JOB_STATUSES, type JobStatus } from "@/domain/job-status";
-import { currentDate, fromDateInput } from "@/lib/format";
+import { addCalendarDays, currentDate, fromDateInput } from "@/lib/format";
 import { db } from "./db";
 
 type Current = Partial<
@@ -76,9 +76,10 @@ export function readFilters(params: Record<string, string | string[] | undefined
     const value = params[key];
     return typeof value === "string" && value.trim() !== "" ? value.trim() : undefined;
   };
+  const today = currentDate();
   return {
-    from: one("from") ?? currentDate(),
-    to: one("to") ?? currentDate(),
+    from: one("from") ?? addCalendarDays(today, -15),
+    to: one("to") ?? today,
     transporterId: one("transporterId"),
     originId: one("originId"),
     destinationFactoryId: one("destinationFactoryId"),

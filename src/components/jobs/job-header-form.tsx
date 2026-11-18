@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, type ChangeEvent } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { SearchSelect } from "@/components/app/search-select";
@@ -17,6 +17,7 @@ import {
   updateJobHeaderAction,
 } from "@/app/(app)/transport/jobs/actions";
 import { jobHeaderSchema, type JobHeaderInput } from "@/lib/job-schema";
+import { keepMoneyTyping } from "@/lib/money-input";
 import type { JobOptions } from "@/server/job-queries";
 
 type Mode =
@@ -134,6 +135,18 @@ export function JobHeaderForm({
     });
 
   const e = formState.errors;
+
+  function moneyField(name: "freightAmount" | "collectAmount") {
+    const field = register(name);
+    return {
+      ...field,
+      inputMode: "decimal" as const,
+      onChange: (event: ChangeEvent<HTMLInputElement>) => {
+        event.target.value = keepMoneyTyping(event.target.value);
+        field.onChange(event);
+      },
+    };
+  }
   const showIssue = mode.kind === "create" || mode.isDraft;
 
   return (
@@ -235,7 +248,7 @@ export function JobHeaderForm({
           />
         </Field>
         <Field label="ค่าจ้างต่อเที่ยว (บาท)" htmlFor={fieldId("freightAmount")} error={e.freightAmount?.message}>
-          <Input id={fieldId("freightAmount")} inputMode="decimal" placeholder="0.00" {...register("freightAmount")} />
+          <Input id={fieldId("freightAmount")} placeholder="0.00" {...moneyField("freightAmount")} />
         </Field>
         <Field
           label="เงินเก็บจากปลายทาง (บาท)"
@@ -243,7 +256,7 @@ export function JobHeaderForm({
           error={e.collectAmount?.message}
           className="sm:col-span-2 lg:col-span-3"
         >
-          <Input id={fieldId("collectAmount")} inputMode="decimal" placeholder="ไม่เก็บเงิน" {...register("collectAmount")} />
+          <Input id={fieldId("collectAmount")} placeholder="ไม่เก็บเงิน" {...moneyField("collectAmount")} />
         </Field>
         {mode.kind === "create" && (
           <Field label="หมายเหตุ" htmlFor={fieldId("note")} error={e.note?.message} className="sm:col-span-2 lg:col-span-3">

@@ -1,15 +1,14 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { EmptyRow, NoAccess, PageHeader } from "@/components/app/ui";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { can } from "@/domain/permissions";
 import { isMasterKind, MASTER_CONFIG } from "@/lib/masters";
 import { requireUser } from "@/server/auth";
-import { listMaster, transporterOptions } from "@/server/masters";
+import { listMaster } from "@/server/masters";
 import { AddMasterDialog } from "./add-master-dialog";
-import { MasterForm } from "./master-form";
+import { EditMasterDialog } from "./edit-master-dialog";
 
 export default async function MasterPage({ params, searchParams }: PageProps<"/transport/masters/[kind]">) {
   const user = await requireUser();
@@ -29,10 +28,6 @@ export default async function MasterPage({ params, searchParams }: PageProps<"/t
     if (editing) query.set(kind === "vehicles" ? "editVehicle" : "editDriver", editing.id);
     redirect(query.size ? `/transport/masters/transporters?${query}` : "/transport/masters/transporters");
   }
-  const needsTransporter = config.fields.some((f) => f.type === "transporter");
-  const transporters = needsTransporter
-    ? await transporterOptions(editing?.values.transporterId || null)
-    : [];
   const listFields = config.fields.filter((f) => f.list);
 
   return (
@@ -42,16 +37,6 @@ export default async function MasterPage({ params, searchParams }: PageProps<"/t
         description="ข้อมูลที่ปิดใช้งานยังแสดงบนใบงานเดิม แต่ไม่ให้เลือกในใบงานใหม่"
         actions={<AddMasterDialog kind={kind} title={config.title} />}
       />
-      {editing && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>แก้ไข{config.title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <MasterForm key={editing.id} kind={kind} row={editing} transporters={transporters} />
-          </CardContent>
-        </Card>
-      )}
       <Card>
         <CardContent>
           <Table>
@@ -75,12 +60,12 @@ export default async function MasterPage({ params, searchParams }: PageProps<"/t
                     {row.active ? <Badge variant="secondary">ใช้งาน</Badge> : <Badge variant="outline">ปิดใช้งาน</Badge>}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Link
-                      href={`/transport/masters/${kind}?edit=${row.id}`}
-                      className="text-sm text-primary underline-offset-4 hover:underline"
-                    >
-                      แก้ไข
-                    </Link>
+                    <EditMasterDialog
+                      kind={kind}
+                      title={config.title}
+                      row={row}
+                      initialOpen={editing?.id === row.id}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

@@ -64,6 +64,14 @@ export function fromDateInput(value: string): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+/** Moves a yyyy-mm-dd calendar date by whole days. Hire dates do not follow a timezone offset. */
+export function addCalendarDays(isoDate: string, days: number) {
+  const date = fromDateInput(isoDate);
+  if (!date) return isoDate;
+  date.setUTCDate(date.getUTCDate() + days);
+  return toDateInput(date);
+}
+
 /** yyyy-mm-dd for today in Thailand. */
 export function currentDate(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-US", {

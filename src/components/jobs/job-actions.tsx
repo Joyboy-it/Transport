@@ -1,6 +1,6 @@
 "use client";
 
-import { Wallet } from "lucide-react";
+import { BadgeCheck, Wallet } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { cancelJobAction, deleteDraftAction, recordCollectionAction, updateNoteAction } from "@/app/(app)/transport/jobs/actions";
@@ -8,6 +8,7 @@ import { confirmWarningAction } from "@/app/(app)/transport/jobs/[id]/weighing-a
 import { Field, FormMessage, Pill, type Tone } from "@/components/app/ui";
 import { jobType } from "@/components/jobs/job-type";
 import { useFormAction } from "@/components/app/use-form-action";
+import { keepMoneyTyping } from "@/lib/money-input";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -132,35 +133,36 @@ export function CollectionForm({
               defaultValue={amount}
               placeholder="ไม่เก็บเงิน"
               className="pr-14 tabular-nums"
+              onChange={(event) => {
+                event.target.value = keepMoneyTyping(event.target.value);
+              }}
             />
             <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">
               บาท
             </span>
           </div>
-          <Pill tone={statusTone} dot={false} className="h-8 px-3">
+          <Pill tone={statusTone} dot={false} className="h-11 px-3 text-sm">
             {status}
           </Pill>
         </div>
-        {state?.fieldErrors?.collectAmount && (
-          <p className="text-xs text-destructive">{state.fieldErrors.collectAmount}</p>
-        )}
         {receivedLabel && <p className="text-xs text-success">{receivedLabel}</p>}
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <Button type="submit" name="intent" value="save" variant="outline" size="sm" disabled={pending}>
-          บันทึกจำนวนเงิน
-        </Button>
+      <div className="grid gap-2 sm:grid-cols-2">
         {received ? (
-          <Button type="submit" name="intent" value="unreceive" variant="ghost" size="sm" disabled={pending}>
+          <Button type="submit" name="intent" value="unreceive" variant="outline" disabled={pending}>
             ยกเลิกการรับเงิน
           </Button>
         ) : (
-          <Button type="submit" name="intent" value="receive" size="sm" disabled={pending}>
+          <Button type="submit" name="intent" value="receive" disabled={pending}>
+            <BadgeCheck />
             รับเงินแล้ว
           </Button>
         )}
-        <FormMessage state={state} />
+        <Button type="submit" name="intent" value="save" variant="outline" disabled={pending}>
+          บันทึกจำนวนเงิน
+        </Button>
       </div>
+      <FormMessage state={state} />
     </form>
   );
 }
@@ -171,7 +173,7 @@ export function NoteForm({ jobId, updatedAt, note }: { jobId: string; updatedAt:
     <form onSubmit={onSubmit} className="grid gap-2">
       <Textarea name="note" defaultValue={note} rows={3} aria-label="หมายเหตุ" />
       <div className="flex items-center gap-3">
-        <Button type="submit" variant="outline" size="sm" disabled={pending}>
+        <Button type="submit" variant="outline" disabled={pending}>
           บันทึกหมายเหตุ
         </Button>
         <FormMessage state={state} />

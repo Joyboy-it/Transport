@@ -103,21 +103,26 @@ export function MasterForm({
       })}
 
       {row && (
-        <label className="flex items-center gap-2 self-end pb-2 text-sm">
-          <input type="checkbox" name="active" defaultChecked={row.active} className="size-4" />
-          ใช้งานอยู่ (ปิดแล้วจะไม่แสดงในตัวเลือกของใบงานใหม่)
+        <label className="flex items-start gap-2 text-sm">
+          <input type="checkbox" name="active" defaultChecked={row.active} className="mt-0.5 size-4 shrink-0" />
+          <span>ใช้งานอยู่ (ปิดแล้วจะไม่แสดงในตัวเลือกของใบงานใหม่)</span>
         </label>
       )}
 
-      <div className={cn("flex items-center gap-3", !compact && "sm:col-span-2 lg:col-span-3", compact && "mt-1")}>
+      <div
+        className={cn(
+          "flex gap-3",
+          compact ? "mt-1 flex-col" : "items-center sm:col-span-2 lg:col-span-3",
+        )}
+      >
         <Button type="submit" disabled={pending} className={compact ? "w-full" : undefined}>
           {row ? "บันทึกการแก้ไข" : "เพิ่ม"}
         </Button>
         {row &&
           (onCancel ? (
-            <button type="button" onClick={onCancel} className="text-sm text-muted-foreground hover:underline">
+            <Button type="button" variant="outline" onClick={onCancel} className={compact ? "w-full" : undefined}>
               ยกเลิกการแก้ไข
-            </button>
+            </Button>
           ) : (
             <Link href={cancelHref} className="text-sm text-muted-foreground hover:underline">
               ยกเลิกการแก้ไข

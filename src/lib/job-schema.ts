@@ -1,17 +1,10 @@
 import { z } from "zod";
-import { parseAmount } from "@/domain/decimal";
+import { normalizeMoney } from "@/lib/money-input";
 
 const id = z.string().trim().max(50);
 
-function money(label: string) {
-  return z
-    .string()
-    .trim()
-    .refine((value) => {
-      if (value === "") return true;
-      const amount = parseAmount(value);
-      return amount !== null && !amount.isNegative() && amount.abs().lessThan(1e12);
-    }, `${label}ต้องเป็นตัวเลขไม่ติดลบ ทศนิยมไม่เกิน 2 ตำแหน่ง`);
+function money() {
+  return z.string().transform((value) => normalizeMoney(value));
 }
 
 export const jobHeaderSchema = z.object({
@@ -26,8 +19,8 @@ export const jobHeaderSchema = z.object({
   originId: id,
   destinationFactoryId: id,
   responsibleUserId: id,
-  freightAmount: money("ค่าจ้าง"),
-  collectAmount: money("เงินเก็บจากปลายทาง"),
+  freightAmount: money(),
+  collectAmount: money(),
   note: z.string().max(2000, "หมายเหตุยาวเกิน 2000 ตัวอักษร"),
 });
 

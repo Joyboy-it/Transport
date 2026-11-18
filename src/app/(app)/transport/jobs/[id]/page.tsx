@@ -457,7 +457,7 @@ function CollectionSummary({ amount, received, detail }: { amount: string; recei
         <div className="flex h-11 min-w-0 flex-1 items-center rounded-lg border bg-background px-3.5 tabular-nums">
           {amount || "ไม่เก็บเงิน"}
         </div>
-        <Pill tone={tone} dot={false} className="h-8 px-3">
+        <Pill tone={tone} dot={false} className="h-11 px-3 text-sm">
           {status}
         </Pill>
       </div>
