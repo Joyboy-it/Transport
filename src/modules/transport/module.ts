@@ -1,4 +1,4 @@
-import { ClipboardList, Database, FilePlus2, Scale, Settings, TriangleAlert, Truck } from "lucide-react";
+import { Banknote, ChartColumn, ClipboardList, Database, FilePlus2, HandCoins, Scale, Settings, TriangleAlert, Truck } from "lucide-react";
 import type { ModuleDef } from "../types";
 
 export const transportModule: ModuleDef = {
@@ -29,6 +29,15 @@ export const transportModule: ModuleDef = {
         { label: "รอชั่งต้นทาง", href: "/transport/queues/origin", icon: Scale, countKey: "origin" },
         { label: "รอชั่งปลายทาง", href: "/transport/queues/destination", icon: Scale, countKey: "destination" },
         { label: "ส่วนต่างรอตรวจสอบ", href: "/transport/queues/variance", icon: TriangleAlert, countKey: "variance" },
+      ],
+    },
+    {
+      title: "วิเคราะห์",
+      items: [
+        { label: "ภาพรวม", href: "/transport/analysis", icon: ChartColumn, exact: true },
+        { label: "ส่วนต่างน้ำหนัก", href: "/transport/analysis/variance", icon: Scale },
+        { label: "ค่าจ้าง", href: "/transport/analysis/freight", icon: Banknote, visible: "job.viewFreight" },
+        { label: "เงินเก็บปลายทาง", href: "/transport/analysis/collection", icon: HandCoins, visible: "job.viewFreight" },
       ],
     },
     {

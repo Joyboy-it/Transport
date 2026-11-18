@@ -8,18 +8,22 @@ const hrefs = (role: Role, id: string) => {
   const mod = visibleModules(role).find((m) => m.id === id);
   return mod ? visibleSections(mod, role).flatMap((s) => s.items.map((i) => i.href)) : null;
 };
-const everyone = ["/transport/jobs", "/transport/queues/origin", "/transport/queues/destination", "/transport/queues/variance"];
+const queues = ["/transport/queues/origin", "/transport/queues/destination", "/transport/queues/variance"];
+const analysis = ["/transport/analysis", "/transport/analysis/variance", "/transport/analysis/freight", "/transport/analysis/collection"];
+const weighingAnalysis = ["/transport/analysis", "/transport/analysis/variance"];
 const masters = ["/transport/masters/transporters", "/transport/masters/origins", "/transport/masters/factories", "/transport/masters/commodities"];
-const owner = [everyone[0], "/transport/jobs?new=1", ...everyone.slice(1), ...masters];
+const owner = ["/transport/jobs", "/transport/jobs?new=1", ...queues, ...analysis, ...masters];
+const weighing = ["/transport/jobs", ...queues, ...weighingAnalysis];
+const reader = ["/transport/jobs", ...queues, ...analysis];
 
 describe("menu per role matches the pre-ERP sidebar", () => {
   test.each([
     ["ADMIN", [...owner, "/transport/settings"], ["/admin/users", "/admin/company"]],
     ["TRANSPORT", owner, null],
-    ["WEIGHING", everyone, null],
-    ["ACCOUNTING", everyone, null],
-    ["APPROVER", everyone, null],
-    ["VIEWER", everyone, null],
+    ["WEIGHING", weighing, null],
+    ["ACCOUNTING", reader, null],
+    ["APPROVER", reader, null],
+    ["VIEWER", reader, null],
   ] as const)("%s", (role, transport, admin) => {
     expect(hrefs(role, "transport")).toEqual(transport);
     expect(hrefs(role, "admin")).toEqual(admin);
@@ -40,6 +44,10 @@ describe("current page", () => {
     ["/transport/queues/variance", ["transport", "ส่วนต่างรอตรวจสอบ"]],
     ["/transport/masters/transporters", ["transport", "ผู้รับจ้าง รถ คนขับ"]],
     ["/transport/settings", ["transport", "เกณฑ์ส่วนต่าง"]],
+    ["/transport/analysis", ["transport", "ภาพรวม"]],
+    ["/transport/analysis/variance", ["transport", "ส่วนต่างน้ำหนัก"]],
+    ["/transport/analysis/freight", ["transport", "ค่าจ้าง"]],
+    ["/transport/analysis/collection", ["transport", "เงินเก็บปลายทาง"]],
     ["/transport/unknown", ["transport", null]],
     ["/transportation", [null, null]],
     ["/admin/users/cm1abc", ["admin", "ผู้ใช้งาน"]],
@@ -52,6 +60,12 @@ describe("current page", () => {
   test("the create shortcut is never current", () => {
     const create = MODULES[0].sections[0].items[1];
     expect(isItemActive("/transport/jobs", create)).toBe(false);
+  });
+  test("the overview item does not stay current on a child analysis page", () => {
+    const overview = MODULES[0].sections.flatMap((section) => section.items).find((item) => item.href === "/transport/analysis");
+    expect(overview?.exact).toBe(true);
+    expect(isItemActive("/transport/analysis/variance", overview!)).toBe(false);
+    expect(isItemActive("/transport/analysis", overview!)).toBe(true);
   });
 });
 

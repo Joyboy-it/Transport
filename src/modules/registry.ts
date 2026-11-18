@@ -21,6 +21,7 @@ export function visibleSections(mod: ModuleDef, role: Role): MenuSection[] {
 export function isItemActive(pathname: string, item: MenuItem): boolean {
   if (item.neverActive || item.exclude?.includes(pathname)) return false;
   const path = item.href.split("?")[0];
+  if (item.exact) return pathname === path;
   return pathname === path || pathname.startsWith(`${path}/`);
 }
 

@@ -11,6 +11,8 @@ export type MenuItem = {
   countKey?: string;
   /** Pathnames under href that must not light this item up. */
   exclude?: string[];
+  /** Match only this path. Child paths stay with their own items. */
+  exact?: boolean;
   /** A shortcut that is never shown as the current page. */
   neverActive?: boolean;
   /** Listed as a link on the module's home card. */
